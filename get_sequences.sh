@@ -176,17 +176,18 @@ function module_one {
       fi
       # pcr - allow ~10% mismatch per primer
       # usearch -search_pcr ${label}.raw.fa -db ${SCRIPTS}/12S_primers.fa -strand both -maxdiffs 4 -minamp 420 -maxamp 470 -ampout ${label}.amp.fa # for Kocher 12S primers
-      usearch11 -search_pcr2 ${label}.raw.fa -fwdprimer ACTGGGATTAGATACCCC -revprimer YRGAACAGGCTCCTCTAG -minamp 80 -maxamp 120 -strand both -maxdiffs 4 -fastaout ${label}.amp.fa # for 12S Riaz primers
+      # usearch11 -search_pcr2 ${label}.raw.fa -fwdprimer ACTGGGATTAGATACCCC -revprimer YRGAACAGGCTCCTCTAG -minamp 80 -maxamp 120 -strand both -maxdiffs 4 -fastaout ${label}.amp.fa # for 12S Riaz primers
+      usearch11 -search_pcr2 ${label}.raw.fa -fwdprimer ACTGGGATTAGATACCCC -revprimer TAGAACAGGCTCCTCTAG -minamp 80 -maxamp 120 -strand both -maxdiffs 4 -fastaout ${label}.amp.fa # for 12S kelly primers
       if [ -s ${label}.amp.fa ]
       then
         # remove primers
         # usearch -fastx_truncate ${label}.amp.fa -stripleft 30 -stripright 28 -fastaout ${label}.amp_only.fa # for Kocher 12S primers
-        usearch -fastx_truncate ${label}.amp.fa -stripleft 0 -stripright 0 -fastaout ${label}.amp_only.fa # for Riaz 12S primers
+        usearch -fastx_truncate ${label}.amp.fa -stripleft 0 -stripright 0 -fastaout ${label}.amp_only.fa # for Riaz 12S primers and for kelly 12S primers.
         # blast
         makeblastdb -in ${label}.amp_only.fa -dbtype nucl
         blastn -db ${label}.amp_only.fa -query ${label}.raw.fa -out ${label}.amp.blastn -task blastn -evalue 1e-20 -max_target_seqs 1 -outfmt 6 -num_threads 7
         # cat ${label}.amp.blastn | awk 'BEGIN{FS=OFS}($4>=360){print $1 OFS $7 OFS $8}' > ${label}.amp.blastn.coords # for 12S Kocher primers
-        cat ${label}.amp.blastn | awk 'BEGIN{FS=OFS}($4>=80){print $1 OFS $7 OFS $8}' > ${label}.amp.blastn.coords # for 12S Riaz primers
+        cat ${label}.amp.blastn | awk 'BEGIN{FS=OFS}($4>=80){print $1 OFS $7 OFS $8}' > ${label}.amp.blastn.coords # for 12S Riaz primers and for kelly 12S primers.
         # remove blastdb
         rm ${label}.amp_only.fa.n*
         # get amplicons
@@ -739,8 +740,7 @@ function module_one {
       #DY sativa -s ${file} -t ${label}.final_for_sativa.tax -x ZOO -T 7 -n ${label} -o ./${label}_sativa
       #DY to make it run with python2, have to invoke python2 and give full pathname
       #DY sativa only runs with python2
-      python2 ~/src/sativa/sativa.py -s ${file} -t ${label}.final_for_sativa.tax -x ZOO -T 7 -n ${label} -o ./${label}_sativa
-      #cleanup
+      python2 ~/src/sativa/sativa.py -s ${file} -t ${label}.final_for_sativa.tax -x ZOO -T 3
       mv ${label}.final.fa ./intermediate_files
       rm ${label}.final_for_sativa.tax
     done

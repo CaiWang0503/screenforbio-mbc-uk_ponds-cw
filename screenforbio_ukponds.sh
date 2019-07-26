@@ -69,7 +69,7 @@ cp archived_files/MIDORI_UNIQUE_20180221_srRNA_RDP.fasta.gz ./MIDORI_UNIQUE_1.2_
 sed -i 's/\.[0-9].*\t/\t/g' MIDORI_UNIQUE_1.2_srRNA_RDP.fasta
 head -n 40 MIDORI_UNIQUE_1.2_srRNA_RDP.fasta
 
-# there are two 12S_primers files:  12S_primers_kocher.fa and 12S_primers_riaz.fa. Duplicate the one that you want to use and change its filename to 12S_primers.fa, and this will be the pair used to pull out 12S amplicons from the Midori reference database
+#there are two 12S_primers files:  12S_primers_kocher.fa and 12S_primers_riaz.fa. Duplicate the one that you want to use and change its filename to 12S_primers.fa, and this will be the pair used to pull out 12S amplicons from the Midori reference database
 # to use the Kocher primers (12S_primers_kocher.fa), in get_sequences.sh:
      # change the usearch -search_pcr line 178 to
      # usearch -search_pcr ${label}.raw.fa -db ${SCRIPTS}/12S_primers.fa -strand both -maxdiffs 4 -minamp 420 -maxamp 470 -ampout ${label}.amp.fa
@@ -78,17 +78,18 @@ head -n 40 MIDORI_UNIQUE_1.2_srRNA_RDP.fasta
      # change the awk line 188 to
      # cat ${label}.amp.blastn | awk 'BEGIN{FS=OFS}($4>=360){print $1 OFS $7 OFS $8}' > ${label}.amp.blastn.coords # for 12S Kocher primers
 # to use the Riaz primers (12S_primers_riaz.fa), in get_sequences.sh:
-     # change the usearch -search_pcr line 179 to
+     # change the usearch -search_pcr line 178 to
      # usearch11 -search_pcr2 ${label}.raw.fa -fwdprimer ACTGGGATTAGATACCCC -revprimer YRGAACAGGCTCCTCTAG -minamp 80 -maxamp 120 -strand both -maxdiffs 4 -fastaout ${label}.amp.fa # for 12S Riaz primers
      # change the usearch -fastx_truncate line 184 to
      # usearch -fastx_truncate ${label}.amp.fa -stripleft 0 -stripright 0 -fastaout ${label}.amp_only.fa # for Riaz 12S primers
      # change the awk line 189 to
      # cat ${label}.amp.blastn | awk 'BEGIN{FS=OFS}($4>=80){print $1 OFS $7 OFS $8}' > ${label}.amp.blastn.coords # for 12S Riaz primers
-
+#
+cp ~/Documents/500_ponds/analysis/analysis/ref/ref_seqs/Tetrapoda_UK_species_12sgenbank_nogap_edit.fas ./extra_12S.fa
 bash ~/src/screenforbio-mbc-uk_ponds-cw/get_sequences.sh yes no one Tetrapoda ~/src/screenforbio-mbc-uk_ponds-cw/
-# the first no is changed from no to yes to add the Salleh et al. 75 mitogenomes from GigaScience, which are in the files extra_12S.fa and extra_16S.fa (same content).
+# the first no is changed from no to yes to add the Harper et al. 2018, and from 400ponds_analysis.sh to merge all of the Tetrapoda sequences into one file, which are in the files extra_12S.fa and extra_16S.fa (same content).
 # Successful
-# Module 1 took 0.58 hours (16Smam and 12SRiaz primers, Midori 1.1)
+# Module 1 took 3.67 hours (12Skelly primers, Midori 1.2)
 # Module 1 took 1.06 hours (16Smam and 12SRiaz primers, Midori 1.2)
 
 # Actions after Module 1 complete
@@ -125,13 +126,14 @@ bash ~/src/screenforbio-mbc-uk_ponds-cw/get_sequences.sh yes no two Tetrapoda ~/
           # sed -i '$a\Hemidactylus_adensis\' MIDORI_${TAXON}.missing_sp.txt
 
 # Success
-# Module 2 took 2.12 hours (MIDORI 1.2).
+# Module 2 took 0.65 hours (MIDORI 1.2).
 # At the end of Step 5, there is a summary of the Results:
 # ══  Results  ═════════════════
 #
-# ● Total: 1186
-# ● Found: 11
-# ● Not Found: 1175
+# ● Total: 704
+#● Found: 7
+#● Not Found: 697
+
 # and then the program goes silent for a while while downloading the taxonomic hierarchies, followed by Steps 6 and 7.
 # There are two output files:
      # Tetrapoda.missing_sp_to_delete.txt
@@ -155,7 +157,7 @@ cd ~/src/screenforbio-mbc-uk_ponds-cw/
 bash ~/src/screenforbio-mbc-uk_ponds-cw/get_sequences.sh yes no three Tetrapoda ~/src/screenforbio-mbc-uk_ponds-cw/
 # Success
 # Module 3 took ~ 24.0 hours for srRNA and lrRNA, using 7 threads (MIDORI 1.2). About 12 hrs per gene.
-
+# Module 3 took ~ 14.75 hours for srRNA and lrRNA, using 7 threads (MIDORI 1.2).
 # Actions after Module 3 complete
 # Module 3 complete. Stopping now for manual inspection of mislabelled sequences in ./MIDORI_locus_sativa/MIDORI_locus.mis
 # To skip manual editing, do nothing and restart script.
@@ -163,6 +165,17 @@ bash ~/src/screenforbio-mbc-uk_ponds-cw/get_sequences.sh yes no three Tetrapoda 
 # For sequences where species-level or genus-level mislabelling can be resolved, make corrections directly in Tetrapoda.final_taxonomy_sativa.txt (i.e. replace the taxonomic classification for that sequence with the correct one), this will be used to rename sequences.
 # Make higher level changes to the taxonomy at your own risk - untested.
 # Restart script when happy.
+# Mislabeled sequences by rank:
+# Class       :   8
+#
+# Order       :   78
+# Epifamily   :   1
+# Family      :   308
+# Tribe       :   6
+# Subtribe    :   22
+# Infratribe  :   1
+# Genus       :   583
+# Species     :   1639
 
 cd ~/src/screenforbio-mbc-uk_ponds-cw/
 . ~/.linuxify; which sed # should show /usr/local/opt/gnu-sed/libexec/gnubin/sed
@@ -183,7 +196,7 @@ bash ~/src/screenforbio-mbc-uk_ponds-cw/get_sequences.sh yes no four Tetrapoda ~
      # sed -i '/FTP Error: \[Errno 8] nodename nor servname provided, or not known/d'  ${label}.final_clean_relabel.unalign.fa  ## \[ to escape the square bracket
 
 # Success
-# Module 4 took 9.07 hours (MIDORI 1.2)
+# Module 4 took 1.50 hours (MIDORI 1.2)
 
 # Module 4 complete. You have reached the end of get_sequences.sh
 #
@@ -253,7 +266,10 @@ cd ~/src/screenforbio-mbc-uk_ponds-cw/
 . ~/.linuxify; which sed # should show /usr/local/opt/gnu-sed/libexec/gnubin/sed
 # copy the species list from the archive directory to the screenforbio directory
      # or substitute another Tetrapoda-limited species list. Check that your species are in the Tetrapoda.final_protax_taxonomy.txt file
-cp ~/src/screenforbio-mbc-uk_ponds-cw/archived_files/splist_20190516.csv ./splist.csv
+#cp ~/src/screenforbio-mbc-uk_ponds-cw/archived_files/splist_20190516.csv ./splist.csv
+cp ~/Documents/500_ponds/analysis/analysis/ref/species_list/UK_Tetrapoda_species_list.txt ./splist.txt
+sed -E 's/ /,/' splist.txt > splist.csv
+
 bash ~/src/screenforbio-mbc-uk_ponds-cw/train_weighted_protax.sh splist.csv Tetrapoda.final_protax_taxonomy.txt ~/src/screenforbio-mbc-uk_ponds-cw/
      # usage: bash train_weighted_protax.sh splist taxonomy screenforbio
      # where:
@@ -262,6 +278,7 @@ bash ~/src/screenforbio-mbc-uk_ponds-cw/train_weighted_protax.sh splist.csv Tetr
      # screenforbio is the path to the screenforbio-mbc directory (must contain subdirectory protaxscripts)
      # note: will take the taxon from the protax taxonomy file name
      # note: assumes curated database FASTA files are in current directory and labelled with format taxon.final_database.locus.fa (e.g. Tetrapoda.final_database.12S.fa)
+
 
 # End of train_weighted_protax.sh
 # Success
